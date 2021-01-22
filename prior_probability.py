@@ -25,7 +25,19 @@ class PriorProbability():
             found from the prior probability.
         """
 
-        raise NotImplementedError()
+        trueCnt = 0
+        falseCnt = 0
+
+        for eval in targets:
+            if(eval):
+                trueCnt = trueCnt + 1
+            else:
+                falseCnt = falseCnt + 1
+        
+        if trueCnt > falseCnt:
+            self.most_common_class = 1
+        else:
+            self.most_common_class = 0
 
     def predict(self, data):
         """
@@ -39,6 +51,5 @@ class PriorProbability():
             predictions (np.array): numpy array of size N array which has the predicitons 
             for the input data.
         """
-
         
         raise NotImplementedError()
