@@ -176,7 +176,62 @@ def information_gain(features, attribute_index, targets):
             attribute_index.
     """
 
-    raise NotImplementedError()
+    sCntZero = 0
+    sCntOnes = 0
+    sCntTotal = 0
+
+    for item in targets:
+        if item == 0:
+            sCntZero = sCntZero + 1
+        else:
+            sCntOnes = sCntOnes + 1
+        sCntTotal = sCntTotal + 1
+    
+    probZero = sCntZero/sCntTotal
+    probOne = sCntOnes/sCntTotal
+
+    sEntrop = (-probZero * np.log2(probZero)) + (-probOne * np.log2(probOne))
+
+    zeroCntOne = 0
+    oneCntOne = 0
+
+    zeroCntZero = 0
+    oneCntZero = 0
+
+    i = 0
+    for row in features:
+        test = row[attribute_index]
+        if(test):
+            if targets[i]:
+                oneCntOne = oneCntOne + 1
+            else:
+                oneCntZero = oneCntZero + 1
+        else:
+            if targets[i]:
+                zeroCntOne = zeroCntOne + 1
+            else:
+                zeroCntZero = zeroCntZero + 1
+        i = i+1
+
+    total = oneCntOne + oneCntZero + zeroCntZero + zeroCntOne
+    attOne = oneCntOne + oneCntZero
+    attZero = zeroCntOne + zeroCntZero
+    probOneAttOne = oneCntOne/attOne
+    probZeroAttOne = oneCntZero/attOne
+    probOneAttZero = zeroCntOne/attZero
+    probZeroAttZero = zeroCntZero/attZero
+    EntropyAttZero = (-probOneAttZero * np.log2(probOneAttZero)) + (-probZeroAttZero * np.log2(probZeroAttZero))
+    EntropyAttOne = (-probOneAttOne * np.log2(probOneAttOne)) + (-probZeroAttOne * np.log2(probZeroAttOne))
+    totEntropy = (attZero/total)(EntropyAttZero) + (attOne/total)(EntropyAttOne)
+    
+    return sEntrop - totEntropy
+    
+
+
+    
+
+
+
 
 if __name__ == '__main__':
     # construct a fake tree

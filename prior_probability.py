@@ -34,7 +34,7 @@ class PriorProbability():
             else:
                 falseCnt = falseCnt + 1
         
-        if trueCnt > falseCnt:
+        if trueCnt >= falseCnt:
             self.most_common_class = 1
         else:
             self.most_common_class = 0
@@ -51,5 +51,8 @@ class PriorProbability():
             predictions (np.array): numpy array of size N array which has the predicitons 
             for the input data.
         """
+        predictions = np.zeros(data.shape[0])
+        if self.most_common_class == 1:
+            predictions = np.ones(data.shape[0])
         
-        raise NotImplementedError()
+        return predictions
