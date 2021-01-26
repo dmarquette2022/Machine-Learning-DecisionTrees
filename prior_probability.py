@@ -29,15 +29,15 @@ class PriorProbability():
         falseCnt = 0
 
         for eval in targets:
-            if(eval):
-                trueCnt = trueCnt + 1
+            if eval == 1.0:
+                trueCnt += 1
             else:
                 falseCnt = falseCnt + 1
         
         if trueCnt >= falseCnt:
-            self.most_common_class = 1
+            self.most_common_class = float(1)
         else:
-            self.most_common_class = 0
+            self.most_common_class = float(0)
 
     def predict(self, data):
         """
@@ -54,5 +54,4 @@ class PriorProbability():
         predictions = np.zeros(data.shape[0])
         if self.most_common_class == 1:
             predictions = np.ones(data.shape[0])
-        
         return predictions

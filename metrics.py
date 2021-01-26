@@ -32,6 +32,7 @@ def confusion_matrix(actual, predictions):
     if predictions.shape[0] != actual.shape[0]:
         raise ValueError("predictions and actual must be the same length!")
 
+
     i=0
 
     trueNeg = 0
@@ -52,6 +53,7 @@ def confusion_matrix(actual, predictions):
         i=i+1
 
     confMatrix = np.array([[trueNeg, falsePos],[falseNeg, truePos]])
+
     return confMatrix
 
 
@@ -78,7 +80,7 @@ def accuracy(actual, predictions):
     confMatrix = confusion_matrix(actual,predictions)
     top = confMatrix[0][0] + confMatrix[1][1]
     bottom = top + confMatrix[0][1] + confMatrix[1][0]
-    acc = (float)(top/bottom)
+    acc = top/bottom
     return acc
 
 def precision_and_recall(actual, predictions):

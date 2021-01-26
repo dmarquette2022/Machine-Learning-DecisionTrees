@@ -74,9 +74,79 @@ class DecisionTree():
             VOID: It should update self.tree with a built decision tree.
         """
         self._check_input(features)
+        self.tree = Node()
+        self.ID3(features, targets, self.attribute_names)
+
+    def mostCommonClass(targets):
+        numPos = 0
+        numNeg = 0
+        for target in targets:
+            if(target):
+                numPos = numPos + 1
+            else:
+                numNeg = numNeg + 1
+
+        if(numPos>=numNeg):
+            return 1
+        else:
+            return 0
+
+    
+    def ID3(self, features, targets, attributes):
+        t = Node()
+        numPos = 0
+        numNeg = 0
+        for fin in targets:
+            if(fin):
+                numPos=numPos +1
+            else:
+                numNeg = numNeg + 1
+        if(numPos == 0):
+            t.value = 0
+        elif(numNeg == 0):
+            t.value = 1
+        
+        if(len(attributes) == 0):
+            if(numPos>= numNeg):
+                t.value = 1
+            else:
+                t.value = 0
+            return t
+        
+        maxGain = 0
+        A = 0
+        for att in attributes:
+            currGain = self.information_gain(features, att.index(), targets)
+            if(currGain > maxGain):
+                A = att.index()
+                maxGain = currGain
+
+        options = [0,1]
+        column = features[:,A]
+        D_a = []
+        target_a = []
+        t.attribute_index = A
+        t.attribute_name = attributes[A]
+        storeA = attributes
+        attributes_a = attributes.remove(t.attribute_name)
+        attributes = storeA
+        for option in options:
+            i = 0
+            for row in column:
+                if row == option:
+                    D_a = np.vstack((D_a, features[i,:]))
+                    target_a = target_a.append(targets[i])
+                i=i+1
+            if(len(D_a) == 0):
+                tPrime = Node()
+                tPrime.value = self.mostCommonClass(targets)
+                t.branches.append(tPrime)
+            else:
+                t.branches.append(self.ID3(D_a, target_a, attributes_a))
+        return t
 
 
-        raise NotImplementedError()
+
 
     def predict(self, features):
         """
@@ -92,7 +162,27 @@ class DecisionTree():
         """
         self._check_input(features)
 
-        raise NotImplementedError()
+        predictions = np.ones(features.shape[0])
+        i=0
+        for row in features:
+            curr = self.tree
+            while len(curr.branches) != 0:
+                propAtt = curr.attribute_index
+                if row[propAtt]:
+                    curr = curr.branches[1]
+                else:
+                    curr = curr.branches[0]
+            predictions[i] = curr.value
+            i=i+1
+
+        return predictions
+        
+
+
+
+
+
+
 
     def _visualize_helper(self, tree, level):
         """

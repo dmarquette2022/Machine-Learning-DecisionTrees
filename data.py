@@ -105,6 +105,9 @@ def train_test_split(features, targets, fraction):
     if (fraction > 1.0):
         raise ValueError('N cannot be bigger than number of examples!')
 
+    if(fraction == 1.0):
+        return features, targets[0], features, targets[0]
+        
     N = int(features.shape[0] * fraction)
     M = features.shape[0] - N
     K = features.shape[1]
@@ -119,7 +122,6 @@ def train_test_split(features, targets, fraction):
         elif i>=N:
             test_features[k] = row
             k=k+1
-        
     train_targets = targets[0:N]
     test_targets = targets[N:]
 

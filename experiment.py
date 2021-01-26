@@ -41,8 +41,29 @@ def run(data_path, learner_type, fraction):
         recall (np.float): Recall on testing examples using learner
         f1_measure (np.float): F1 Measure on testing examples using learner
     """
+    features, targets, attribute_names = load_data(data_path)
+    if learner_type == 'decision_tree':
+        leaner = DecisionTree(attribute_names)
+    else:
+        learner = PriorProbability()
+    print("going in")
+    train_features, train_targets, test_features, test_targets = train_test_split(features, targets, fraction)
+    print("TEST TARGETS")
+    print(test_targets)
+    learner.fit(train_features, train_targets)
+    print("FRACTION")
+    print(fraction)
 
-    raise NotImplementedError()
+    predictions = learner.predict(test_features)
+    precision, recall = precision_and_recall(test_targets, predictions)
+    confMatr = confusion_matrix(test_targets, predictions)
+    f1 = f1_measure(test_targets, predictions)
+    acc = accuracy(test_targets, predictions)
+
+
+
+
+    
 
     # Order of these returns must be maintained
-    return confusion_matrix, accuracy, precision, recall, f1_measure
+    return confMatr, acc, precision, recall, f1
