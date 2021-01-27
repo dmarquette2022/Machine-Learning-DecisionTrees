@@ -43,16 +43,11 @@ def run(data_path, learner_type, fraction):
     """
     features, targets, attribute_names = load_data(data_path)
     if learner_type == 'decision_tree':
-        leaner = DecisionTree(attribute_names)
+        learner = DecisionTree(attribute_names)
     else:
         learner = PriorProbability()
-    print("going in")
     train_features, train_targets, test_features, test_targets = train_test_split(features, targets, fraction)
-    print("TEST TARGETS")
-    print(test_targets)
     learner.fit(train_features, train_targets)
-    print("FRACTION")
-    print(fraction)
 
     predictions = learner.predict(test_features)
     precision, recall = precision_and_recall(test_targets, predictions)

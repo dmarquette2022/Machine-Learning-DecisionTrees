@@ -54,6 +54,7 @@ class DecisionTree():
         """
         self.attribute_names = attribute_names
         self.tree = None
+        self.FirstTime = True
 
     def _check_input(self, features):
         if features.shape[1] != len(self.attribute_names):
@@ -74,8 +75,9 @@ class DecisionTree():
             VOID: It should update self.tree with a built decision tree.
         """
         self._check_input(features)
-        self.tree = Node()
-        self.ID3(features, targets, self.attribute_names)
+        self.tree = self.ID3(features, targets, self.attribute_names, None)
+        self.visualize()
+        print("done!")
 
     def mostCommonClass(targets):
         numPos = 0
@@ -92,8 +94,11 @@ class DecisionTree():
             return 0
 
     
-    def ID3(self, features, targets, attributes):
+    def ID3(self, features, targets, attributes, val):
         t = Node()
+        if(self.FirstTime):
+            self.tree = t
+            self.FirstTime = False
         numPos = 0
         numNeg = 0
         for fin in targets:
@@ -101,10 +106,12 @@ class DecisionTree():
                 numPos=numPos +1
             else:
                 numNeg = numNeg + 1
-        if(numPos == 0):
+        if numPos == 0:
             t.value = 0
-        elif(numNeg == 0):
+            return t
+        elif numNeg == 0:
             t.value = 1
+            return t
         
         if(len(attributes) == 0):
             if(numPos>= numNeg):
@@ -113,37 +120,61 @@ class DecisionTree():
                 t.value = 0
             return t
         
-        maxGain = 0
+        maxGain = None
         A = 0
-        for att in attributes:
-            currGain = self.information_gain(features, att.index(), targets)
-            if(currGain > maxGain):
-                A = att.index()
+        maxIndex = 0
+        for index, att in enumerate(attributes):
+            currGain = information_gain(features, index, targets)
+            if maxGain == None:
+                maxIndex = index
                 maxGain = currGain
+            elif currGain > maxGain:
+                maxIndex = index
+                maxGain = currGain
+
+        newAttributes = [i for i in attributes if i is not attributes[maxIndex]]
+        maxOriginalAttIndex = self.attribute_names.index(attributes[maxIndex])
+
+        s0_features = features[features[:, maxOriginalAttIndex] == 0]
+        s0_target = targets[features[:, maxOriginalAttIndex] == 0]
+        s1_features = features[features[:, maxOriginalAttIndex] == 1]
+        s1_target = targets[features[:, maxOriginalAttIndex] == 1]
+
+
+
+        return Node(val, attributes[maxIndex], maxOriginalAttIndex, [
+            self.ID3(s0_features, s0_target, newAttributes, 0),
+            self.ID3(s1_features, s1_target, newAttributes, 1)
+        ])
+        """
 
         options = [0,1]
         column = features[:,A]
-        D_a = []
+        D_a = np.ones((1, features.shape[1]))
+        firstTime = True
         target_a = []
+        print(A)
         t.attribute_index = A
-        t.attribute_name = attributes[A]
-        storeA = attributes
-        attributes_a = attributes.remove(t.attribute_name)
-        attributes = storeA
+        t.attribute_name = self.attribute_names[A]
         for option in options:
             i = 0
             for row in column:
                 if row == option:
-                    D_a = np.vstack((D_a, features[i,:]))
-                    target_a = target_a.append(targets[i])
+                    if(firstTime):
+                        D_a = features[i,:]
+                        firstTime = False
+                    else:
+                        D_a = np.vstack((D_a, features[i,:]))
+                    target_a.append(targets[i])
                 i=i+1
             if(len(D_a) == 0):
                 tPrime = Node()
                 tPrime.value = self.mostCommonClass(targets)
                 t.branches.append(tPrime)
             else:
-                t.branches.append(self.ID3(D_a, target_a, attributes_a))
+                t.branches.append(self.ID3(D_a, target_a, attributes))
         return t
+        """
 
 
 
@@ -269,6 +300,21 @@ def information_gain(features, attribute_index, targets):
     sCntZero = 0
     sCntOnes = 0
     sCntTotal = 0
+    
+    """
+    print("TARGETS")
+    print(targets)
+
+    print("Features")
+    print(features)
+
+    print(len(targets))
+    print("mokey")
+    print(len(features))
+
+    print(attribute_index)
+    """
+    
 
     for item in targets:
         if item == 0:
@@ -289,6 +335,7 @@ def information_gain(features, attribute_index, targets):
     oneCntZero = 0
 
     i = 0
+    #[attribute]Cnt[Target]
     for row in features:
         test = row[attribute_index]
         if(test):
@@ -306,14 +353,23 @@ def information_gain(features, attribute_index, targets):
     total = oneCntOne + oneCntZero + zeroCntZero + zeroCntOne
     attOne = oneCntOne + oneCntZero
     attZero = zeroCntOne + zeroCntZero
-    probOneAttOne = oneCntOne/attOne
-    probZeroAttOne = oneCntZero/attOne
-    probOneAttZero = zeroCntOne/attZero
-    probZeroAttZero = zeroCntZero/attZero
-    EntropyAttZero = (-probOneAttZero * np.log2(probOneAttZero)) + (-probZeroAttZero * np.log2(probZeroAttZero))
-    EntropyAttOne = (-probOneAttOne * np.log2(probOneAttOne)) + (-probZeroAttOne * np.log2(probZeroAttOne))
-    totEntropy = (attZero/total)(EntropyAttZero) + (attOne/total)(EntropyAttOne)
-    
+    if oneCntOne == 0 or oneCntZero == 0:
+        EntropyAttOne = 0
+    else:
+        probOneAttOne = oneCntOne/attOne
+        probZeroAttOne = oneCntZero/attOne
+        EntropyAttOne = (-probOneAttOne * np.log2(probOneAttOne)) + (-probZeroAttOne * np.log2(probZeroAttOne))
+    if zeroCntOne == 0 or zeroCntZero == 0:
+        EntropyAttZero = 0
+    else:
+        probOneAttZero = zeroCntOne/attZero
+        probZeroAttZero = zeroCntZero/attZero
+        EntropyAttZero = (-probOneAttZero * np.log2(probOneAttZero)) + (-probZeroAttZero * np.log2(probZeroAttZero))
+
+
+
+    totEntropy = (attZero/total)*(EntropyAttZero) + (attOne/total)*(EntropyAttOne)
+
     return sEntrop - totEntropy
     
 

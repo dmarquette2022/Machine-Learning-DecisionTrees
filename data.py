@@ -57,7 +57,6 @@ def load_data(data_path):
         targets = np.ones((1,N))
         attNames = listr[0]
         attNames = attNames[0:-1]
-        print(attNames)
         listr = listr[1:]
         i=0
         for row in listr:
