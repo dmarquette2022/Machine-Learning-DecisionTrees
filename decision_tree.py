@@ -146,51 +146,11 @@ class DecisionTree():
             elif row == 1:
                 oneFeatures.append(features[index])
                 oneTarget.append(targets[index])
-                
-        """
-        zeroFeatures = features[features[:, maxOriginalAttIndex] == 0]
-        zeroTarget = targets[features[:, maxOriginalAttIndex] == 0]
-        oneFeatures = features[features[:, maxOriginalAttIndex] == 1]
-        oneTarget = targets[features[:, maxOriginalAttIndex] == 1]
-        """
-
-
 
         return Node(value, attributes[maxIndex], maxOriginalAttIndex, [
             self.ID3(zeroFeatures, zeroTarget, newAttributes, 0),
             self.ID3(oneFeatures, oneTarget, newAttributes, 1)
         ])
-
-        """
-
-        options = [0,1]
-        
-        D_a = np.ones((1, features.shape[1]))
-        firstTime = True
-        target_a = []
-        print(A)
-        t.attribute_index = A
-        t.attribute_name = self.attribute_names[A]
-        for option in options:
-            i = 0
-            for row in column:
-                if row == option:
-                    if(firstTime):
-                        D_a = features[i,:]
-                        firstTime = False
-                    else:
-                        D_a = np.vstack((D_a, features[i,:]))
-                    target_a.append(targets[i])
-                i=i+1
-            if(len(D_a) == 0):
-                tPrime = Node()
-                tPrime.value = self.mostCommonClass(targets)
-                t.branches.append(tPrime)
-            else:
-                t.branches.append(self.ID3(D_a, target_a, attributes))
-        return t
-        """
-
 
 
 
