@@ -76,7 +76,6 @@ class DecisionTree():
         """
         self._check_input(features)
         self.tree = self.ID3(features, targets, self.attribute_names, None)
-        self.visualize()
         print("done!")
 
     def mostCommonClass(targets):
