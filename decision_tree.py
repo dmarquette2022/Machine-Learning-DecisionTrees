@@ -93,7 +93,7 @@ class DecisionTree():
             return 0
 
     
-    def ID3(self, features, targets, attributes, val):
+    def ID3(self, features, targets, attributes, value):
         t = Node()
         if(self.FirstTime):
             self.tree = t
@@ -120,7 +120,6 @@ class DecisionTree():
             return t
         
         maxGain = None
-        A = 0
         maxIndex = 0
         for index, att in enumerate(attributes):
             currGain = information_gain(features, index, targets)
@@ -134,21 +133,38 @@ class DecisionTree():
         newAttributes = [i for i in attributes if i is not attributes[maxIndex]]
         maxOriginalAttIndex = self.attribute_names.index(attributes[maxIndex])
 
-        s0_features = features[features[:, maxOriginalAttIndex] == 0]
-        s0_target = targets[features[:, maxOriginalAttIndex] == 0]
-        s1_features = features[features[:, maxOriginalAttIndex] == 1]
-        s1_target = targets[features[:, maxOriginalAttIndex] == 1]
+        zeroFeatures = []
+        zeroTarget = []
+        oneFeatures = []
+        oneTarget = []
+        features = np.array(features)
+        column = features[:, maxOriginalAttIndex]
+        for index, row in enumerate(column):
+            if row == 0:
+                zeroFeatures.append(features[index])
+                zeroTarget.append(targets[index])
+            elif row == 1:
+                oneFeatures.append(features[index])
+                oneTarget.append(targets[index])
+                
+        """
+        zeroFeatures = features[features[:, maxOriginalAttIndex] == 0]
+        zeroTarget = targets[features[:, maxOriginalAttIndex] == 0]
+        oneFeatures = features[features[:, maxOriginalAttIndex] == 1]
+        oneTarget = targets[features[:, maxOriginalAttIndex] == 1]
+        """
 
 
 
-        return Node(val, attributes[maxIndex], maxOriginalAttIndex, [
-            self.ID3(s0_features, s0_target, newAttributes, 0),
-            self.ID3(s1_features, s1_target, newAttributes, 1)
+        return Node(value, attributes[maxIndex], maxOriginalAttIndex, [
+            self.ID3(zeroFeatures, zeroTarget, newAttributes, 0),
+            self.ID3(oneFeatures, oneTarget, newAttributes, 1)
         ])
+
         """
 
         options = [0,1]
-        column = features[:,A]
+        
         D_a = np.ones((1, features.shape[1]))
         firstTime = True
         target_a = []
